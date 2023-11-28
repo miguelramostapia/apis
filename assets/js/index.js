@@ -55,10 +55,18 @@ function buscarMoneda(){
     const tipoDestino=document.querySelector(".tiposdeCambio").value;
     const texto_html=document.querySelector(".user");
     let texto_de_paso=""
+    let total
+    for (let item_moneda of listado_monedas){
+        if(item_moneda.codigo===tipoDestino){
+            total = monedaOrigen/item_moneda.valor;
+            texto_de_paso=`<p>Moneda Origen : ${monedaOrigen}</p><br>
+            <p>Moneda Destino : ${tipoDestino}</p><br>
+            <p>Tipo de Cambio : ${item_moneda.valor}</p><br>
+            <p>Valor final    : ${total}</p>`
+        }
+    }
+  
 
-    texto_de_paso=`<p>Moneda Origen : ${monedaOrigen}</p><br>
-                <p>Moneda Destino : ${tipoDestino}</p><br>
-                <p>valor : no hay valor</p>`
     texto_html.innerHTML=texto_de_paso
 
 }
