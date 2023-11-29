@@ -1,3 +1,4 @@
+//creo arreglo para contener las monedas con un dummy
 const listado_monedas = [
     {   id: 0,
         codigo: '',
@@ -9,6 +10,7 @@ const listado_monedas = [
 
 async function getCambioMoneda() {
     try{
+        //rescato las monedas y las guardo en el arreglo
         const res = await
         fetch("https://mindicador.cl/api");
         const data = await res.json();
@@ -23,7 +25,7 @@ async function getCambioMoneda() {
         listado_monedas.push({id:6,codigo:indicadorDiario.ipc.codigo,fecha:indicadorDiario.ipc.fecha,nombre:indicadorDiario.ipc.nombre, unidad_medida:indicadorDiario.ipc.unidad_medida, valor:indicadorDiario.ipc.valor})
         listado_monedas.push({id:7,codigo:indicadorDiario.ivp.codigo,fecha:indicadorDiario.ivp.fecha,nombre:indicadorDiario.ivp.nombre, unidad_medida:indicadorDiario.ivp.unidad_medida, valor:indicadorDiario.ivp.valor})
 
-        listado_monedas.splice(0,1)
+        listado_monedas.splice(0,1) //elimino el elemento dummy
         let texto_de_paso=""
         texto_de_paso=` <select>
                         <option>${indicadorDiario.bitcoin.codigo}</option><br>
@@ -35,7 +37,7 @@ async function getCambioMoneda() {
                         <option>${indicadorDiario.ivp.codigo}</option><br>
                         </select>
         `
-        element.innerHTML = texto_de_paso
+        element.innerHTML = texto_de_paso //lleno el select
 
         console.log(data);
     } 
@@ -50,14 +52,68 @@ async function getCambioMoneda() {
 
 getCambioMoneda();
 
-function buscarMoneda(){
+/////////////////////////////////////////////////////////////////////////////////
+
+async function getAndCreateDataToChart(moneda) {
+    try{
+        enlace_moneda="https://mindicador.cl/api/"+moneda;//se carga la dirección segun la moneda
+        console.log(moneda);
+        const res = await fetch(enlace_moneda);
+        const undata = await res.json();
+        let sismos=undata.serie//se traspasa el arreglo de datos
+        const labels = sismos.map((sismo) => {
+                    return sismo.fecha;
+                    });
+        const data = sismos.map((sismo) => {
+                      return sismo.valor;
+                                });
+        const datasets = [{
+                            label: moneda,
+                            borderColor: "rgb(255, 99, 132)",
+                            data
+                            }
+        ];
+        return { labels, datasets };//se carga dataset y labels
+
+    } 
+    catch (error){
+        const texto_html=document.querySelector(".error")
+        let texto_de_paso=""
+    
+        texto_de_paso=`<br><br><p>Error página con problemas de conexión. Intentar en 24 horas.</p><br><br>`
+        texto_html.innerHTML=texto_de_paso
+    }
+}
+
+//getAndCreateDataToChart();/*
+let myChart;
+async function renderGrafica(moneda) {//se prepara la carga de datos desde la API
+    const data = await getAndCreateDataToChart(moneda);
+    const config = {
+    type: "line",
+    data
+    };
+    if(myChart){
+        myChart.clear();
+        myChart.destroy();
+    }
+    myChart = document.getElementById('myChart');
+
+    myChart.style.backgroundColor = "white";
+    myChart = new Chart(myChart, config);
+}
+/////////////////////////////////////////////////////////////////////////////////
+
+
+
+function buscarMoneda(){//si doy click en buscar, entonces se disparan los calculos.
     const monedaOrigen=document.querySelector(".montoOriginal").value;
     const tipoDestino=document.querySelector(".tiposdeCambio").value;
     const texto_html=document.querySelector(".user");
     let texto_de_paso=""
     let total
     for (let item_moneda of listado_monedas){
-        if(item_moneda.codigo===tipoDestino){
+        if(item_moneda.codigo===tipoDestino){//para la moneda elegida se genera el calculo de la conversión a pesos
             total = monedaOrigen/item_moneda.valor;
             texto_de_paso=`<p>Moneda Origen : ${monedaOrigen}</p><br>
             <p>Moneda Destino : ${tipoDestino}</p><br>
@@ -67,28 +123,9 @@ function buscarMoneda(){
     }
   
 
-    texto_html.innerHTML=texto_de_paso
+    texto_html.innerHTML=texto_de_paso //se despliega en un texto los datos que verifican el calculo
+
+    renderGrafica(tipoDestino);//se llama a la función que contiene los datos del mes de la moneda
 
 }
 
-/*
-async function getRandomUser(){
-    const res = await fetch("https://randomuser.me/api")
-    const data = await res.json()
-    console.log(data)
-    const element = document.querySelector(".user")
-    element.innerHTML = data.results[0]['email']
-    const texto_html=document.querySelector(".user")
-    let texto_de_paso=""
-
-    texto_de_paso=`<p>correo electrónico : ${data.results[0].email}</p><br>
-                <p>número de celular : ${data.results[0].cell}</p><br>
-                <p>nombre completo : ${data.results[0].name.title}</p><br>
-                <p>nombre completo : ${data.results[0].name.first}</p><br>
-                <p>nombre completo : ${data.results[0].name.last}</p><br>
-                <p>ciudad : ${data.results[0].location.city}</p><br>
-                <p><img src="${data.results[0].picture.thumbnail}" alt="ejemplo de imagen"</p>`
-    texto_html.innerHTML=texto_de_paso
-}
-getRandomUser()
-*/

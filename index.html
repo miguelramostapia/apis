@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conversor de Monedas Nacional</title>
     <link rel="stylesheet" href="assets/css/estilos.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -17,13 +18,8 @@
         <select class="tiposdeCambio"></select><br><br>
         <button onclick="buscarMoneda()">Buscar</button>
         <br><br><br>
-        <div class="container_tareas">
-          <div class="resumen">
-  
-          </div>
-          <div class="tareas">
-    
-          </div>  
+        <div class="container_chart">
+                <canvas id="myChart">8</canvas>
         </div>
   
       </div>
@@ -33,8 +29,8 @@
     <div class="user"></div>
     <div class="error"></div>
 
-    <script src="./assets/js/index.js">
 
-</script>
+    <script src="./assets/js/index.js"></script>
+
 </body>
 </html>
